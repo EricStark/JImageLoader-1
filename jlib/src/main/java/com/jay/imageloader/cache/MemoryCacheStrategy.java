@@ -15,7 +15,7 @@ public class MemoryCacheStrategy implements JCacheStrategy {
 
     private MemoryCacheStrategy() {
         int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
-        int cacheSize = maxMemory / 5;
+        int cacheSize = maxMemory / 8;
         mCache = new LruCache<String, Bitmap>(cacheSize) {
             @Override
             protected int sizeOf(String key, Bitmap value) {

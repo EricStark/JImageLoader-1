@@ -3,6 +3,7 @@ package com.jay.imageloader.config;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.Nullable;
 
 import com.jay.imageloader.cache.JCacheStrategy;
 import com.jay.imageloader.cache.MemoryCacheStrategy;
@@ -66,7 +67,7 @@ public class RequestConfig {
         return this;
     }
 
-    public RequestConfig cacheStrategy(JCacheStrategy cacheStrategy) {
+    public RequestConfig cacheStrategy(@Nullable JCacheStrategy cacheStrategy) {
         if (cacheStrategy == null)
             mCacheStrategy = NoneCacheStrategy.getInstance();
         else

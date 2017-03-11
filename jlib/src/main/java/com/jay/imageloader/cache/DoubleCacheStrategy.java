@@ -29,6 +29,11 @@ public class DoubleCacheStrategy implements JCacheStrategy {
     @Override
     public Bitmap get(String address) {
         Bitmap bitmap = sMemoryCacheStrategy.get(address);
-        return bitmap != null ? bitmap : sDiskCacheStrategy.get(address);
+        if (bitmap == null) {
+            bitmap = sDiskCacheStrategy.get(address);
+            if (bitmap != null)
+                sMemoryCacheStrategy.put(address, bitmap);
+        }
+        return bitmap;
     }
 }
