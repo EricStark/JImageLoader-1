@@ -3,8 +3,6 @@ package com.jay.imageloader;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.util.Log;
 import android.widget.ImageView;
 
 import com.jay.imageloader.cache.JCacheStrategy;
@@ -29,10 +27,11 @@ public class JImageLoader {
     //线程池
     private static ExecutorService sFixedThreadPool = new MyThreadPoolExecutor(THREAD_COUNT);
 
+    //将图片显示到imageView中
     public static void displayImage(final ImageView imageView, final RequestConfig config) {
         imageView.setImageDrawable(config.getPlaceHolder());
         imageView.setTag(config.getAddress());
-        load(config, new Callback() {
+        submitLoadRequest(config, new Callback() {
             @Override
             public void success(Bitmap bitmap) {
                 if (imageView.getTag().equals(config.getAddress()))
@@ -47,7 +46,8 @@ public class JImageLoader {
         });
     }
 
-    public static void load(final RequestConfig config, final Callback callback) {
+    //提交图片加载请求，结果通过callback返回
+    public static void submitLoadRequest(final RequestConfig config, final Callback callback) {
         PriorityRunnable priorityRunnable = new PriorityRunnable(new Runnable() {
             @Override
             public void run() {
@@ -58,14 +58,15 @@ public class JImageLoader {
                     return;
                 }
                 //从网络加载
-                downLoadImage(config.getAddress(), config.getCacheStrategy(), callback);
+                loadImage(config.getAddress(), config.getCacheStrategy(), callback);
             }
         }, System.currentTimeMillis());
         sFixedThreadPool.submit(priorityRunnable);
     }
 
-    private static void downLoadImage(final String address, final JCacheStrategy cacheStrategy, final Callback callback) {
+    private static void loadImage(final String address, final JCacheStrategy cacheStrategy, final Callback callback) {
         try {
+            //判断请求类型
             final Bitmap bitmap = address.startsWith("http") ? fromHttp(address) : fromFile(address);
             if (bitmap == null) {
                 returnResult(callback, null, new Exception("unknown"));
@@ -79,6 +80,7 @@ public class JImageLoader {
         }
     }
 
+    //从网络中加载
     private static Bitmap fromHttp(String address) throws IOException {
         URL url = new URL(address);
         final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -87,10 +89,12 @@ public class JImageLoader {
         return bitmap;
     }
 
+    //从文件中加载
     private static Bitmap fromFile(String address) {
         return BitmapFactory.decodeFile(address);
     }
 
+    //返回结果
     private static void returnResult(final Callback callback, final Bitmap bitmap, final Exception e) {
         UI_HANDLER.post(new Runnable() {
             @Override
@@ -105,7 +109,8 @@ public class JImageLoader {
 
     private static class MyThreadPoolExecutor extends ThreadPoolExecutor {
         private MyThreadPoolExecutor(int nThreads) {
-            super(nThreads, nThreads, 0L, TimeUnit.MILLISECONDS, new PriorityBlockingQueue<>(THREAD_COUNT, new Comparator<Runnable>() {
+            super(nThreads, nThreads, 0L, TimeUnit.MILLISECONDS, new PriorityBlockingQueue<>(
+                    THREAD_COUNT, new Comparator<Runnable>() {
                 @Override
                 public int compare(Runnable o1, Runnable o2) {
                     if (o1 instanceof PriorityRunnable && o2 instanceof PriorityRunnable) {

@@ -3,18 +3,17 @@ package com.jay.imageloader.cache;
 import android.graphics.Bitmap;
 import android.support.v4.util.LruCache;
 
-import com.jay.utils.Md5;
-
 /**
  * 内存缓存
  */
 
 public class MemoryCacheStrategy implements JCacheStrategy {
-    private static final MemoryCacheStrategy INSTANCE = new MemoryCacheStrategy();
     private LruCache<String, Bitmap> mCache;
 
     private MemoryCacheStrategy() {
+        //获取最大内存
         int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+        //计算缓存区大小
         int cacheSize = maxMemory / 8;
         mCache = new LruCache<String, Bitmap>(cacheSize) {
             @Override
@@ -25,16 +24,20 @@ public class MemoryCacheStrategy implements JCacheStrategy {
     }
 
     public static MemoryCacheStrategy getInstance() {
-        return INSTANCE;
+        return InstanceHolder.INSTANCE;
     }
 
     @Override
     public void put(String address, Bitmap bitmap) {
-        mCache.put(Md5.getMd5(address), bitmap);
+        mCache.put(address, bitmap);
     }
 
     @Override
     public Bitmap get(String address) {
-        return mCache.get(Md5.getMd5(address));
+        return mCache.get(address);
+    }
+
+    private static class InstanceHolder {
+        private static final MemoryCacheStrategy INSTANCE = new MemoryCacheStrategy();
     }
 }

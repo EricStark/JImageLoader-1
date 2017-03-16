@@ -2,9 +2,9 @@ package com.jay.imageloader.cache;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.support.annotation.NonNull;
 
-import com.jay.utils.Md5;
+import com.jay.imageloader.cache.encrytor.Encryptor;
+import com.jay.imageloader.cache.encrytor.Md5Encryptor;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -15,22 +15,20 @@ import java.io.IOException;
  */
 
 public class DiskCacheStrategy implements JCacheStrategy {
-    private static final DiskCacheStrategy INSTANCE = new DiskCacheStrategy();
+    private Encryptor mEncryptor = new Md5Encryptor();  //默认采用md5加密命名文件
     private String mCacheDir;
 
-    private DiskCacheStrategy() {
-    }
+    private DiskCacheStrategy() {}
 
-    public static DiskCacheStrategy getInstance(@NonNull String cacheDir) {
-        INSTANCE.setCacheDir(cacheDir);
-        return INSTANCE;
+    public static DiskCacheStrategy getInstance() {
+        return InstanceHolder.INSTANCE;
     }
 
     @Override
     public void put(String address, Bitmap bitmap) {
         FileOutputStream os = null;
         try {
-            os = new FileOutputStream(mCacheDir + Md5.getMd5(address));
+            os = new FileOutputStream(mCacheDir + mEncryptor.encrypt(address));
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, os);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -46,10 +44,14 @@ public class DiskCacheStrategy implements JCacheStrategy {
 
     @Override
     public Bitmap get(String address) {
-        return BitmapFactory.decodeFile(mCacheDir + Md5.getMd5(address));
+        return BitmapFactory.decodeFile(mCacheDir + mEncryptor.encrypt(address));
     }
 
     public void setCacheDir(String path) {
         mCacheDir = path.endsWith("/") ? path : path + "/";
+    }
+
+    private static class InstanceHolder {
+        private static final DiskCacheStrategy INSTANCE = new DiskCacheStrategy();
     }
 }

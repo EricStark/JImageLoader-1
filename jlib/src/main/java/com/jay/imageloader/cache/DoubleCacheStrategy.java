@@ -1,39 +1,43 @@
 package com.jay.imageloader.cache;
 
 import android.graphics.Bitmap;
-import android.support.annotation.NonNull;
 
 /**
  * 内存与磁盘双缓存
  */
 
 public class DoubleCacheStrategy implements JCacheStrategy {
-    private static final DoubleCacheStrategy INSTANCE = new DoubleCacheStrategy();
-    private static MemoryCacheStrategy sMemoryCacheStrategy = MemoryCacheStrategy.getInstance();
-    private static DiskCacheStrategy sDiskCacheStrategy;
+    private MemoryCacheStrategy mMemoryCacheStrategy = MemoryCacheStrategy.getInstance();
+    private DiskCacheStrategy mDiskCacheStrategy = DiskCacheStrategy.getInstance();
 
     private DoubleCacheStrategy() {}
 
-    public static DoubleCacheStrategy getInstance(@NonNull String cacheDir) {
-        if (sDiskCacheStrategy == null)
-            sDiskCacheStrategy = DiskCacheStrategy.getInstance(cacheDir);
-        return INSTANCE;
+    public static DoubleCacheStrategy getInstance() {
+        return InstanceHolder.INSTANCE;
     }
 
     @Override
     public void put(String address, Bitmap bitmap) {
-        sMemoryCacheStrategy.put(address, bitmap);
-        sDiskCacheStrategy.put(address, bitmap);
+        mMemoryCacheStrategy.put(address, bitmap);
+        mDiskCacheStrategy.put(address, bitmap);
     }
 
     @Override
     public Bitmap get(String address) {
-        Bitmap bitmap = sMemoryCacheStrategy.get(address);
+        Bitmap bitmap = mMemoryCacheStrategy.get(address);
         if (bitmap == null) {
-            bitmap = sDiskCacheStrategy.get(address);
+            bitmap = mDiskCacheStrategy.get(address);
             if (bitmap != null)
-                sMemoryCacheStrategy.put(address, bitmap);
+                mMemoryCacheStrategy.put(address, bitmap);
         }
         return bitmap;
+    }
+
+    public void setCacheDir(String cacheDir) {
+        mDiskCacheStrategy.setCacheDir(cacheDir);
+    }
+
+    private static class InstanceHolder {
+        private static final DoubleCacheStrategy INSTANCE = new DoubleCacheStrategy();
     }
 }
