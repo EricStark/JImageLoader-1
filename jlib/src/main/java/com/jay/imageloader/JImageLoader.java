@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.widget.ImageView;
 
 import com.jay.imageloader.cache.JCacheStrategy;
+import com.jay.imageloader.compress.JCompressStrategy;
 import com.jay.imageloader.config.RequestConfig;
 
 import java.io.IOException;
@@ -29,7 +30,13 @@ public class JImageLoader {
 
     //将图片显示到imageView中
     public static void displayImage(final ImageView imageView, final RequestConfig config) {
+        JCompressStrategy.CompressOptions options = config.getCompressOptions();
         imageView.setImageDrawable(config.getPlaceHolder());
+        imageView.setScaleType(options.scaleType);
+        if (options.width <= 0 || options.height <= 0) {
+            options.width = imageView.getWidth();
+            options.height = imageView.getHeight();
+        }
         imageView.setTag(config.getAddress());
         submitLoadRequest(config, new Callback() {
             @Override
@@ -52,27 +59,32 @@ public class JImageLoader {
             @Override
             public void run() {
                 //读取缓存
-                final Bitmap bitmap = config.getCacheStrategy().get(config.getAddress());
+                JCacheStrategy cacheStrategy = config.getCacheStrategy();
+                Bitmap bitmap = cacheStrategy.get(config.getAddress(), config.getCompressOptions());
                 if (bitmap != null) {
                     returnResult(callback, bitmap, null);
                     return;
                 }
-                //从网络加载
-                loadImage(config.getAddress(), config.getCacheStrategy(), callback);
+                //加载
+                loadImage(config, callback);
             }
         }, System.currentTimeMillis());
         sFixedThreadPool.submit(priorityRunnable);
     }
 
-    private static void loadImage(final String address, final JCacheStrategy cacheStrategy, final Callback callback) {
+    private static void loadImage(RequestConfig config, Callback callback) {
         try {
             //判断请求类型
+            String address = config.getAddress();
             final Bitmap bitmap = address.startsWith("http") ? fromHttp(address) : fromFile(address);
             if (bitmap == null) {
                 returnResult(callback, null, new Exception("unknown"));
             } else {
-                returnResult(callback, bitmap, null);
-                cacheStrategy.put(address, bitmap);
+                JCompressStrategy compressStrategy = config.getCompressStrategy();
+                JCompressStrategy.CompressOptions options = config.getCompressOptions();
+                returnResult(callback, compressStrategy.compress(bitmap, options), null);
+                JCacheStrategy cacheStrategy = config.getCacheStrategy();
+                cacheStrategy.put(address, bitmap, compressStrategy, options);
             }
         } catch (final IOException e) {
             e.printStackTrace();

@@ -3,8 +3,9 @@ package com.jay.imageloader.cache;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import com.jay.imageloader.cache.encrytor.Encryptor;
-import com.jay.imageloader.cache.encrytor.Md5Encryptor;
+import com.jay.imageloader.compress.JCompressStrategy;
+import com.jay.imageloader.utils.JEncryptor;
+import com.jay.imageloader.utils.Md5Encryptor;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -15,7 +16,7 @@ import java.io.IOException;
  */
 
 public class DiskCacheStrategy implements JCacheStrategy {
-    private Encryptor mEncryptor = new Md5Encryptor();  //默认采用md5加密命名文件
+    private JEncryptor mJEncryptor = new Md5Encryptor();  //默认采用md5加密命名文件
     private String mCacheDir;
 
     private DiskCacheStrategy() {}
@@ -25,11 +26,13 @@ public class DiskCacheStrategy implements JCacheStrategy {
     }
 
     @Override
-    public void put(String address, Bitmap bitmap) {
+    public void put(String address, Bitmap bitmap, JCompressStrategy compressStrategy,
+                    JCompressStrategy.CompressOptions options) {
         FileOutputStream os = null;
         try {
-            os = new FileOutputStream(mCacheDir + mEncryptor.encrypt(address));
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, os);
+            os = new FileOutputStream(mCacheDir + mJEncryptor.encrypt(catArgs(address, options)));
+            compressStrategy.compress(bitmap, options)  //压缩图片
+                    .compress(Bitmap.CompressFormat.PNG, 100, os);  //保存图片
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } finally {
@@ -43,8 +46,13 @@ public class DiskCacheStrategy implements JCacheStrategy {
     }
 
     @Override
-    public Bitmap get(String address) {
-        return BitmapFactory.decodeFile(mCacheDir + mEncryptor.encrypt(address));
+    public Bitmap get(String address, JCompressStrategy.CompressOptions options) {
+        return BitmapFactory.decodeFile(mCacheDir + mJEncryptor.encrypt(catArgs(address, options)));
+    }
+
+    private String catArgs(String srcAddress, JCompressStrategy.CompressOptions options) {
+        return srcAddress + "?width=" + options.width + "&height="
+                + options.height + "&quality=" + options.quality;
     }
 
     public void setCacheDir(String path) {

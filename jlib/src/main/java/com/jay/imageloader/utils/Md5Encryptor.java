@@ -1,4 +1,4 @@
-package com.jay.imageloader.cache.encrytor;
+package com.jay.imageloader.utils;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -8,7 +8,7 @@ import java.security.NoSuchAlgorithmException;
  * md5加密
  */
 
-public class Md5Encryptor implements Encryptor {
+public class Md5Encryptor implements JEncryptor {
     @Override
     public String encrypt(String str) {
         String result = null;

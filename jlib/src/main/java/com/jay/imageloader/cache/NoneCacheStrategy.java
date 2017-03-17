@@ -2,6 +2,8 @@ package com.jay.imageloader.cache;
 
 import android.graphics.Bitmap;
 
+import com.jay.imageloader.compress.JCompressStrategy;
+
 /**
  * 不使用缓存
  */
@@ -14,10 +16,10 @@ public class NoneCacheStrategy implements JCacheStrategy {
     }
 
     @Override
-    public void put(String address, Bitmap bitmap) {}
+    public void put(String address, Bitmap bitmap, JCompressStrategy compressStrategy, JCompressStrategy.CompressOptions options) {}
 
     @Override
-    public Bitmap get(String address) {
+    public Bitmap get(String address, JCompressStrategy.CompressOptions options) {
         return null;
     }
 

@@ -5,11 +5,14 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.widget.ImageView;
 
 import com.jay.imageloader.cache.DiskCacheStrategy;
 import com.jay.imageloader.cache.DoubleCacheStrategy;
 import com.jay.imageloader.cache.JCacheStrategy;
-import com.jay.imageloader.cache.NoneCacheStrategy;
+import com.jay.imageloader.compress.JCompressStrategy;
+import com.jay.imageloader.compress.LosslessCompression;
+import com.jay.imageloader.compress.NoneCompression;
 
 import java.io.File;
 import java.net.URL;
@@ -23,6 +26,8 @@ public class RequestConfig {
     //加载地址
     private String mAddress;
     private JCacheStrategy mCacheStrategy;
+    private JCompressStrategy mCompressStrategy;
+    private JCompressStrategy.CompressOptions mCompressOptions;
     //图片未加载（加载失败）时的占位图
     private Drawable mPlaceHolder;
     private Drawable mErrorHolder;
@@ -50,6 +55,14 @@ public class RequestConfig {
         return mCacheStrategy;
     }
 
+    public JCompressStrategy.CompressOptions getCompressOptions() {
+        return mCompressOptions;
+    }
+
+    public JCompressStrategy getCompressStrategy() {
+        return mCompressStrategy;
+    }
+
     public static class Builder {
         private RequestConfig mConfig = new RequestConfig();
         //缓存目录
@@ -57,12 +70,16 @@ public class RequestConfig {
 
         public Builder(@NonNull Context context) {
             mConfig.mContext = context;
+            mConfig.mCompressOptions = new JCompressStrategy.CompressOptions();
         }
 
         public RequestConfig build() {
             JCacheStrategy cacheStrategy = mConfig.getCacheStrategy();
             if (cacheStrategy == null)
                 mConfig.mCacheStrategy = DoubleCacheStrategy.getInstance();
+            JCompressStrategy compressStrategy = mConfig.getCompressStrategy();
+            if (compressStrategy == null)
+                mConfig.mCompressStrategy = LosslessCompression.getInstance();
             //对磁盘或双缓存设置缓存目录
             if (cacheStrategy instanceof DiskCacheStrategy) {
                 if (mCacheDir == null)
@@ -97,10 +114,7 @@ public class RequestConfig {
         }
 
         public Builder cacheStrategy(@Nullable JCacheStrategy cacheStrategy) {
-            if (cacheStrategy == null)
-                mConfig.mCacheStrategy = NoneCacheStrategy.getInstance();
-            else
-                mConfig.mCacheStrategy = cacheStrategy;
+            mConfig.mCacheStrategy = cacheStrategy;
             return this;
         }
 
@@ -121,6 +135,27 @@ public class RequestConfig {
 
         public Builder cacheDir(String cacheDir) {
             mCacheDir = cacheDir;
+            return this;
+        }
+
+        public Builder size(int width, int height) {
+            mConfig.mCompressOptions.width = width;
+            mConfig.mCompressOptions.height = height;
+            return this;
+        }
+
+        public Builder scaleType(ImageView.ScaleType scaleType) {
+            mConfig.mCompressOptions.scaleType = scaleType;
+            return this;
+        }
+
+        public Builder quality(int quality) {
+            mConfig.mCompressOptions.quality = quality;
+            return this;
+        }
+
+        public Builder compressionStrategy(@Nullable JCompressStrategy compressStrategy) {
+            mConfig.mCompressStrategy = compressStrategy;
             return this;
         }
     }

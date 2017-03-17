@@ -2,6 +2,8 @@ package com.jay.imageloader.cache;
 
 import android.graphics.Bitmap;
 
+import com.jay.imageloader.compress.JCompressStrategy;
+
 /**
  * 内存与磁盘双缓存
  */
@@ -16,25 +18,25 @@ public class DoubleCacheStrategy implements JCacheStrategy {
         return InstanceHolder.INSTANCE;
     }
 
-    @Override
-    public void put(String address, Bitmap bitmap) {
-        mMemoryCacheStrategy.put(address, bitmap);
-        mDiskCacheStrategy.put(address, bitmap);
-    }
-
-    @Override
-    public Bitmap get(String address) {
-        Bitmap bitmap = mMemoryCacheStrategy.get(address);
-        if (bitmap == null) {
-            bitmap = mDiskCacheStrategy.get(address);
-            if (bitmap != null)
-                mMemoryCacheStrategy.put(address, bitmap);
-        }
-        return bitmap;
-    }
-
     public void setCacheDir(String cacheDir) {
         mDiskCacheStrategy.setCacheDir(cacheDir);
+    }
+
+    @Override
+    public void put(String address, Bitmap bitmap, JCompressStrategy compressStrategy, JCompressStrategy.CompressOptions options) {
+        mMemoryCacheStrategy.put(address, bitmap, compressStrategy, options);
+        mDiskCacheStrategy.put(address, bitmap, compressStrategy, options);
+    }
+
+    @Override
+    public Bitmap get(String address, JCompressStrategy.CompressOptions options) {
+        Bitmap bitmap = mMemoryCacheStrategy.get(address, options);
+        if (bitmap == null) {
+            bitmap = mDiskCacheStrategy.get(address, options);
+//            if (bitmap != null)
+//                mMemoryCacheStrategy.put(address, bitmap, NoneCompression.getInstance(), options);
+        }
+        return bitmap;
     }
 
     private static class InstanceHolder {
