@@ -6,7 +6,7 @@
 	</li>
 	<li>
 		<h3>依赖</h3>
-		``` Gradle
+``` Gradle
 repositories {
     maven {
         url 'https://dl.bintray.com/haruue/maven/'
