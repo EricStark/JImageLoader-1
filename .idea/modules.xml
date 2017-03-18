@@ -4,7 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/LibraryTest.iml" filepath="$PROJECT_DIR$/LibraryTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/jlib/jlib.iml" filepath="$PROJECT_DIR$/jlib/jlib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/jimageloader/jimageloader.iml" filepath="$PROJECT_DIR$/jimageloader/jimageloader.iml" />
     </modules>
   </component>
 </project>
