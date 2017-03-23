@@ -67,8 +67,7 @@ dependencies {
   
   如果以上图片压缩策略无法满足需求，你可以通过继承```JCompressStrategy```类自定义图片缓存策略。
 
-   **注：```RequestConfig.Builder```类的```size()```和```quality()```方法是否失效取决于设置的图片压缩策略。（通过这两个方法及```scaleType()```方法设置的参数会被打包成```JCompressStrategy.CompressOptions```对象并传递给```JCompressStrategy```的```compress()```方法，在获取图片时会调用这个方法对图片进行压缩）**
-
+  注：```RequestConfig.Builder```类的```size()```和```quality()```方法是否失效取决于设置的图片压缩策略。
 ## 缺陷
 + 当不使用缓存策略时压缩策略也没法使用
 + 设置缓存目录因为一些bug暂时取消
