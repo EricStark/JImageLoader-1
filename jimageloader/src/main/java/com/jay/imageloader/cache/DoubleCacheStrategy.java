@@ -3,16 +3,18 @@ package com.jay.imageloader.cache;
 import android.graphics.Bitmap;
 
 import com.jay.imageloader.compress.JCompressStrategy;
+import com.jay.imageloader.compress.NoneCompression;
 
 /**
- * 内存与磁盘双缓存
+ * 内存与磁盘双缓存策略
  */
 
 public class DoubleCacheStrategy implements JCacheStrategy {
     private MemoryCacheStrategy mMemoryCacheStrategy = MemoryCacheStrategy.getInstance();
     private DiskCacheStrategy mDiskCacheStrategy = DiskCacheStrategy.getInstance();
 
-    private DoubleCacheStrategy() {}
+    private DoubleCacheStrategy() {
+    }
 
     public static DoubleCacheStrategy getInstance() {
         return InstanceHolder.INSTANCE;
@@ -33,8 +35,8 @@ public class DoubleCacheStrategy implements JCacheStrategy {
         Bitmap bitmap = mMemoryCacheStrategy.get(address, options);
         if (bitmap == null) {
             bitmap = mDiskCacheStrategy.get(address, options);
-//            if (bitmap != null)
-//                mMemoryCacheStrategy.put(address, bitmap, NoneCompression.getInstance(), options);
+            if (bitmap != null)
+                mMemoryCacheStrategy.put(address, bitmap, NoneCompression.getInstance(), options);
         }
         return bitmap;
     }

@@ -6,7 +6,7 @@ import android.support.v4.util.LruCache;
 import com.jay.imageloader.compress.JCompressStrategy;
 
 /**
- * 内存缓存
+ * 内存缓存策略
  */
 
 public class MemoryCacheStrategy implements JCacheStrategy {

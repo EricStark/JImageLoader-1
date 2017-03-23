@@ -5,7 +5,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * md5加密
+ * 对字符串采用md5加密
  */
 
 public class Md5Encryptor implements JEncryptor {

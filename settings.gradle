@@ -1,1 +1,1 @@
-include ':app', ':jimageloader'
+include ':demo', ':jimageloader'

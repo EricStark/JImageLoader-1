@@ -3,7 +3,7 @@ package com.jay.imageloader.compress;
 import android.graphics.Bitmap;
 
 /**
- * 不压缩
+ * 不压缩图片
  */
 
 public class NoneCompression extends JCompressStrategy {

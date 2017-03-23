@@ -5,6 +5,11 @@ package com.jay.imageloader.utils;
  */
 
 public interface JEncryptor {
-    //返回加密后的字符串
+    /**
+     * 对文件名进行加密
+     *
+     * @param str 未加密字符串
+     * @return 加密后的字符串
+     */
     String encrypt(String str);
 }

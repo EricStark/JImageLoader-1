@@ -1,4 +1,4 @@
-package com.jay.librarytest;
+package com.jay.demo;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

@@ -12,11 +12,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
- * 磁盘缓存
+ * SD卡缓存策略
  */
 
 public class DiskCacheStrategy implements JCacheStrategy {
-    private JEncryptor mJEncryptor = new Md5Encryptor();  //默认采用md5加密命名文件
+    private JEncryptor mJEncryptor = new Md5Encryptor();  //默认采用md5加密文件名
     private String mCacheDir;
 
     private DiskCacheStrategy() {}

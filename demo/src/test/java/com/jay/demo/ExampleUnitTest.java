@@ -1,4 +1,4 @@
-package com.jay.librarytest;
+package com.jay.demo;
 
 import org.junit.Test;
 

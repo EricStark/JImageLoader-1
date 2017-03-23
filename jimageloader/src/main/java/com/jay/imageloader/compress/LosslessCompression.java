@@ -3,21 +3,30 @@ package com.jay.imageloader.compress;
 import android.graphics.Bitmap;
 
 /**
- * 无损压缩
+ * 无损压缩策略
  */
 
 public class LosslessCompression extends JCompressStrategy {
+    private LosslessCompression() {
+    }
+
     public static LosslessCompression getInstance() {
         return InstanceHolder.INSTANCE;
     }
-
-    private LosslessCompression() {}
 
     @Override
     public Bitmap compress(Bitmap bitmap, CompressOptions options) {
         return scale(bitmap, options.width, options.height);
     }
 
+    /**
+     * 按比例缩放图片
+     *
+     * @param bitmap    待缩放的bitmap
+     * @param outWidth  输出宽度
+     * @param outHeight 输出高度
+     * @return 缩放后的bitmap
+     */
     private Bitmap scale(Bitmap bitmap, int outWidth, int outHeight) {
         int srcWidth = bitmap.getWidth();
         int srcHeight = bitmap.getHeight();

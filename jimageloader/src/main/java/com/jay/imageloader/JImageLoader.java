@@ -25,10 +25,15 @@ import java.util.concurrent.TimeUnit;
 public class JImageLoader {
     private static final Handler UI_HANDLER = new Handler();
     private static final int THREAD_COUNT = Runtime.getRuntime().availableProcessors();
-    //线程池
+
     private static ExecutorService sFixedThreadPool = new MyThreadPoolExecutor(THREAD_COUNT);
 
-    //将图片显示到imageView中
+    /**
+     * 将图片加载到imageView
+     *
+     * @param imageView 图片显示位置
+     * @param config    加载参数设置
+     */
     public static void displayImage(final ImageView imageView, final RequestConfig config) {
         JCompressStrategy.CompressOptions options = config.getCompressOptions();
         imageView.setImageDrawable(config.getPlaceHolder());
@@ -53,7 +58,11 @@ public class JImageLoader {
         });
     }
 
-    //提交图片加载请求，结果通过callback返回
+    /***
+     * 将图片加载结果返回
+     * @param config 加载参数
+     * @param callback 回调接口
+     */
     public static void submitLoadRequest(final RequestConfig config, final Callback callback) {
         PriorityRunnable priorityRunnable = new PriorityRunnable(new Runnable() {
             @Override
@@ -62,7 +71,7 @@ public class JImageLoader {
                 JCacheStrategy cacheStrategy = config.getCacheStrategy();
                 Bitmap bitmap = cacheStrategy.get(config.getAddress(), config.getCompressOptions());
                 if (bitmap != null) {
-                    returnResult(callback, bitmap, null);
+                    returnResultInUiThread(callback, bitmap, null);
                     return;
                 }
                 //加载
@@ -78,17 +87,17 @@ public class JImageLoader {
             String address = config.getAddress();
             final Bitmap bitmap = address.startsWith("http") ? fromHttp(address) : fromFile(address);
             if (bitmap == null) {
-                returnResult(callback, null, new Exception("unknown"));
+                returnResultInUiThread(callback, null, new Exception("unknown"));
             } else {
                 JCompressStrategy compressStrategy = config.getCompressStrategy();
                 JCompressStrategy.CompressOptions options = config.getCompressOptions();
-                returnResult(callback, compressStrategy.compress(bitmap, options), null);
+                returnResultInUiThread(callback, compressStrategy.compress(bitmap, options), null);
                 JCacheStrategy cacheStrategy = config.getCacheStrategy();
                 cacheStrategy.put(address, bitmap, compressStrategy, options);
             }
         } catch (final IOException e) {
             e.printStackTrace();
-            returnResult(callback, null, e);
+            returnResultInUiThread(callback, null, e);
         }
     }
 
@@ -107,7 +116,7 @@ public class JImageLoader {
     }
 
     //返回结果
-    private static void returnResult(final Callback callback, final Bitmap bitmap, final Exception e) {
+    private static void returnResultInUiThread(final Callback callback, final Bitmap bitmap, final Exception e) {
         UI_HANDLER.post(new Runnable() {
             @Override
             public void run() {
@@ -140,7 +149,7 @@ public class JImageLoader {
         private final long mCreateAt;
         private Runnable mRunnable;
 
-        public PriorityRunnable(Runnable runnable, long createAt) {
+        PriorityRunnable(Runnable runnable, long createAt) {
             mRunnable = runnable;
             mCreateAt = createAt;
         }

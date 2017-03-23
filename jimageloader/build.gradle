@@ -40,7 +40,7 @@ ext {
     siteUrl = 'https://github.com/l1432562823/JImageLoader'
     gitUrl = 'https://github.com/l1432562823/JImageLoader'
 
-    libraryVersion = '1.0.1'
+    libraryVersion = '1.0.2'
     libraryName = 'jimageloader'
     libraryDescription = 'A library that helps load image for Android'
 
