@@ -16,6 +16,7 @@ dependencies {
 
 ## 使用
 + 构造```RequestConfig```对象：
+
   ```Java
   RequestConfig requestConfig = new RequestConfig.Builder(context)
         .from("http://www.jikedaohang.com/images/gaoxiao.jpg")  //设置图片地址
@@ -29,7 +30,9 @@ dependencies {
         .scaleType(ImageView.ScaleType.CENTER_CROP)  //设置图片的scaleType
         .build();
   ```
+  
 + 加载图片
+
   ```Java
    //将图片设置到imageView上
   JImageLoader.displayImage(imageView, config);
@@ -44,24 +47,27 @@ dependencies {
     	public void fail(Exception e) {
  
     	}
-});
+  });
   ```
+  
 + 缓存策略
-你可以通过```RequestConfig.Builder```类的```cacheStrategy()```方法设置缓存策略，库中提供了以下4种缓存策略：
+
+  你可以通过```RequestConfig.Builder```类的```cacheStrategy()```方法设置缓存策略，库中提供了以下4种缓存策略：
   + ```DiskCacheStrategy```（磁盘缓存）；
   + ```MemoryCacheStrategy```（内存缓存）；
   + ```NoneCacheStrategy```（不使用缓存）；
   + ```DoubleCacheStrategy```（磁盘与内存双缓存）【默认】。
 
   如果以上缓存策略无法满足需求，可以通过实现```CacheStrategy```接口自定义缓存策略。
+  
 + 压缩策略
-你可以通过```RequestConfig.Builder```类的```compressionStrategy()```方法设置图片压缩策略，库中提供了以下2种图片压缩策略：
+  你可以通过```RequestConfig.Builder```类的```compressionStrategy()```方法设置图片压缩策略，库中提供了以下2种图片压缩策略：
   + ```LosslessCompression```（无损压缩，即仅改变图片大小，不改变图片质量）；
   + ```NoneCompression```（不使用缓存）。
   
   如果以上图片压缩策略无法满足需求，你可以通过继承```JCompressStrategy```类自定义图片缓存策略。
 
-**注：```RequestConfig.Builder```类的```size()```和```quality()```方法是否失效取决于设置的图片压缩策略。（通过这两个方法及```scaleType()```方法设置的参数会被打包成```JCompressStrategy.CompressOptions```对象并传递给```JCompressStrategy```的```compress()```方法，在获取图片时会调用这个方法对图片进行压缩）**
+   **注：```RequestConfig.Builder```类的```size()```和```quality()```方法是否失效取决于设置的图片压缩策略。（通过这两个方法及```scaleType()```方法设置的参数会被打包成```JCompressStrategy.CompressOptions```对象并传递给```JCompressStrategy```的```compress()```方法，在获取图片时会调用这个方法对图片进行压缩）**
 
 ## 缺陷
 + 当不使用缓存策略时压缩策略也没法使用
