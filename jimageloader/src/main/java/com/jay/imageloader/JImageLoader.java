@@ -12,9 +12,8 @@ import com.jay.imageloader.config.RequestConfig;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Comparator;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -26,7 +25,9 @@ public class JImageLoader {
     private static final Handler UI_HANDLER = new Handler();
     private static final int THREAD_COUNT = Runtime.getRuntime().availableProcessors();
 
-    private static ExecutorService sFixedThreadPool = new MyThreadPoolExecutor(THREAD_COUNT);
+    private static ExecutorService sFixedThreadPool = new ThreadPoolExecutor(THREAD_COUNT,
+            THREAD_COUNT, 0L, TimeUnit.MILLISECONDS,
+            new MyLinkedBlockingDeque<Runnable>());
 
     /**
      * 将图片加载到imageView
@@ -64,7 +65,7 @@ public class JImageLoader {
      * @param callback 回调接口
      */
     public static void submitLoadRequest(final RequestConfig config, final Callback callback) {
-        PriorityRunnable priorityRunnable = new PriorityRunnable(new Runnable() {
+        sFixedThreadPool.submit(new Runnable() {
             @Override
             public void run() {
                 //读取缓存
@@ -77,8 +78,7 @@ public class JImageLoader {
                 //加载
                 loadImage(config, callback);
             }
-        }, System.currentTimeMillis());
-        sFixedThreadPool.submit(priorityRunnable);
+        });
     }
 
     private static void loadImage(RequestConfig config, Callback callback) {
@@ -128,35 +128,18 @@ public class JImageLoader {
         });
     }
 
-    private static class MyThreadPoolExecutor extends ThreadPoolExecutor {
-        private MyThreadPoolExecutor(int nThreads) {
-            super(nThreads, nThreads, 0L, TimeUnit.MILLISECONDS, new PriorityBlockingQueue<>(
-                    THREAD_COUNT, new Comparator<Runnable>() {
-                @Override
-                public int compare(Runnable o1, Runnable o2) {
-                    if (o1 instanceof PriorityRunnable && o2 instanceof PriorityRunnable) {
-                        PriorityRunnable first = (PriorityRunnable) o1;
-                        PriorityRunnable second = (PriorityRunnable) o2;
-                        return (int) (second.mCreateAt - first.mCreateAt);
-                    }
-                    return 0;
-                }
-            }));
-        }
-    }
-
-    private static class PriorityRunnable implements Runnable {
-        private final long mCreateAt;
-        private Runnable mRunnable;
-
-        PriorityRunnable(Runnable runnable, long createAt) {
-            mRunnable = runnable;
-            mCreateAt = createAt;
+    /**
+     * 重写take与poll实现LIFO
+     */
+    private static class MyLinkedBlockingDeque<T> extends LinkedBlockingDeque<T> {
+        @Override
+        public T take() throws InterruptedException {
+            return takeLast();
         }
 
         @Override
-        public void run() {
-            mRunnable.run();
+        public T poll() {
+            return pollLast();
         }
     }
 }
