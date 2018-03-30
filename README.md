@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-    compile 'compile 'com.jay:jimageloader:1.0.2''
+    compile 'com.jay:jimageloader:1.0.2'
 }
 ```
 
